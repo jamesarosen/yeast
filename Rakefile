@@ -20,3 +20,35 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = test_files
   t.verbose = true
 end
+
+begin
+  require 'metric_fu'
+  MetricFu::Configuration.run do |config|
+    #define which metrics you want to use
+    config.metrics  = [:churn, :saikuro, :flog, :flay, :reek, :roodi, :rcov]
+    config.graphs   = [ ] #[:flog, :flay, :reek, :roodi, :rcov]
+    config.reek     = { :dirs_to_reek => ['lib']  }
+    config.rcov     = { :test_files => test_files.to_a,
+                        :rcov_opts => ["--sort coverage", 
+                                       "--no-html", 
+                                       "--text-coverage",
+                                       "--no-color",
+                                       "--profile",
+                                       "--include lib/",
+                                       "--include-file ^lib/.*\\.rb",
+                                       "--exclude /gems/,/Library/,spec"] }
+  end
+rescue LoadError
+  task 'coverage:all' do
+    puts "Metric-Fu is not installed. Try [sudo] gem install jscruggs-metric_fu"
+  end
+end
+
+namespace :metrics do
+
+  desc "Clean up after the metrics"
+  task :clean do
+    rm_r 'tmp/metric_fu' if File.directory?('tmp/metric_fu')
+  end
+  
+end
