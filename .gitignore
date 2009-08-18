@@ -1,4 +1,5 @@
 .DS_Store
 */.DS_Store
+doc/rdoc/
 tmp/metric_fu/
 !.keep

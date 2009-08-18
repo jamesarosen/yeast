@@ -52,3 +52,35 @@ namespace :metrics do
   end
   
 end
+
+desc "Generate RDoc documentation"
+task :doc => ['doc:generate']
+
+begin
+  require 'yard'
+  require 'yard/rake/yardoc_task'
+
+  namespace :doc do
+  
+    doc_dir = './doc/rdoc'
+    readme  = './README.rdoc'
+  
+    YARD::Rake::YardocTask.new(:generate) do |yt|
+      yt.files   = ['lib/**/*.rb', readme]
+      yt.options = ['--output-dir', doc_dir, '--readme', readme]
+    end
+  
+    desc "Remove generated documenation"
+    task :clean do
+      rm_r doc_dir if File.exists?(doc_dir)
+    end
+  
+  end
+rescue LoadError
+  namespace :doc do
+    task :generate do
+      puts "YARD is not installed. Try [sudo] gem install yard"
+    end
+    task :clean => ['doc:generate']
+  end
+end
